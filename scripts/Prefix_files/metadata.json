@@ -1,0 +1,32 @@
+{
+    "id": "file-prefixer",
+    "name": "File Prefixer",
+    "description": "Prefixes all file names with a specified string.",
+    "longDescription": "This script adds a custom prefix to all files in a directory, along with a sequential number. Files are processed in order of their modification time, and subdirectories are skipped.",
+    "version": "1.0.0",
+    "category": "file-management",
+    "type": "official",
+    "author": "ScriptHub",
+    "tags": ["File Management", "Rename", "Batch Processing", "Organization"],
+    "parameters": [
+        {
+            "name": "folder-path",
+            "label": "Folder containing files:",
+            "type": "file",
+            "placeholder": "C:\\Users\\YourName\\Documents",
+            "defaultValue": "",
+            "required": true,
+            "description": "Select the folder containing files to be renamed"
+        },
+        {
+            "name": "prefix",
+            "label": "Prefix text:",
+            "type": "text",
+            "placeholder": "Document",
+            "defaultValue": "New_",
+            "required": true,
+            "description": "Text to add at the beginning of each filename"
+        }
+    ],
+    "executable": "prefix.exe"
+}
