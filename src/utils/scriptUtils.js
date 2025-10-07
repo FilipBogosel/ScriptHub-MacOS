@@ -3,6 +3,25 @@ import fs from 'fs/promises';
 import { spawn } from 'child_process';
 import { BrowserWindow } from 'electron';
 
+function getPythonExecutablePath() {
+  if (process.env.NODE_ENV === 'development') {
+    return 'python';
+  }
+
+  const platform = os.platform();
+  const resourcesPath = app.isPackaged ? process.resourcesPath : '.';
+
+  if (platform === 'darwin') { // macOS
+    return path.join(resourcesPath, 'bin/Python.framework/Versions/Current/bin/python3');
+  }
+
+  if (platform === 'win32') { // Windows
+    return path.join(resourcesPath, 'bin', 'python', 'python.exe');
+  }
+
+  return 'python';
+}
+
 
 export async function loadScripts(__dirname) {
     const scriptsPath = path.join(__dirname, 'scripts');
@@ -57,7 +76,15 @@ export async function loadScripts(__dirname) {
 
 export async function executeScript(event, { scriptPath, executableName, args }) {
     const executablePath = path.join(scriptPath, executableName);
-    const child = spawn(executablePath, args);
+    //We use an embedded Python interpreter for .py scripts
+    const pythonCommand = getPythonExecutablePath();
+
+    if(executableName.endsWith('.py')){
+        const child = spawn(pythonCommand,executablePath, args);
+    }
+    else{
+        throw new Error('Only Python scripts are supported currently.');
+    }
 
     child.stdout.on('data', (data) => {
         event.sender.send('script-output', data.toString());
@@ -78,7 +105,8 @@ async function getExecutables(folderPath) {
     let executables = [];
     for (const file of files) {
         const filePath = path.join(folderPath, file);
-        if (file.includes('.exe') || file.includes('.sh') || file.includes('.bat') || file.includes('.dmg')) {
+        // Check for .exe or .py files or Mac binaries
+        if (file.includes('.exe') || file.includes('.py') || file.includes('.sh') || file.includes('.command') || file.includes('.bin')) {
             executables.push({ name: file, path: filePath });
         }
     }
